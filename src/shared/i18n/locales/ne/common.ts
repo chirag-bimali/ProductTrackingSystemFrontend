@@ -187,6 +187,12 @@ export const neCommon: typeof enCommon = {
       descriptionNp: "विवरण (नेपाली)",
       adminName: "प्रशासकको नाम",
       emailAddress: "इमेल ठेगाना",
+      contact: "सम्पर्क नम्बर",
+      password: "अस्थायी पासवर्ड",
+      province: "प्रदेश",
+      district: "जिल्ला",
+      municipality: "नगरपालिका",
+      ward: "वडा",
       assignedRegion: "तोकिएको क्षेत्र / नगरपालिका",
       rolePermissions: "भूमिका अनुमति",
       inviteHelp:

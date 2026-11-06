@@ -32,6 +32,11 @@ export interface MockAdmin {
   nameEn: string;
   nameNp: string;
   email: string;
+  contact?: string;
+  province?: string;
+  district?: string;
+  municipality?: string;
+  ward?: string;
   regionEn: string;
   regionNp: string;
   status: "Active" | "Pending invite";

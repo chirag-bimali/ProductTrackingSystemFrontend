@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { clearAuthSession } from "@shared/lib";
-import { LanguageToggle } from "@shared/ui";
+import { DashboardButton, LanguageToggle } from "@shared/ui";
 import type { AuthenticatedUser } from "@features/auth/model/authenticated-user";
 import type { DashboardOverviewConfig } from "@widgets/dashboard-overview";
 
@@ -168,7 +168,7 @@ export function DashboardLayout({
             className="flex min-w-0 items-center gap-3"
             onClick={closeMobileNavigation}
           >
-            <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-primary text-white shadow-sm ring-2 ring-primary-light">
+            <span className="flex size-9 shrink-0 items-center justify-center rounded-card bg-primary text-white shadow-sm ring-2 ring-primary-light">
               <BadgeCheck size={21} aria-hidden="true" />
             </span>
             <span className="min-w-0">
@@ -185,14 +185,15 @@ export function DashboardLayout({
               </span>
             </span>
           </Link>
-          <button
+          <DashboardButton
+            variant="ghost"
             type="button"
             aria-label={t("dashboard.closeNavigation")}
-            className="flex size-9 items-center justify-center rounded-control text-text-muted hover:bg-background lg:hidden"
+            className="size-9 min-h-0 px-0 lg:hidden"
             onClick={closeMobileNavigation}
           >
             <X size={18} aria-hidden="true" />
-          </button>
+          </DashboardButton>
         </div>
 
         <nav
@@ -206,7 +207,7 @@ export function DashboardLayout({
             to={config.homeTo}
             activeOptions={{ exact: true }}
             onClick={closeMobileNavigation}
-            className="flex min-h-9 items-center gap-2.5 rounded-lg border-l-2 border-primary bg-primary-light px-3 text-xs font-semibold text-primary"
+            className="flex min-h-9 items-center gap-2.5 rounded-control border-l-2 border-primary bg-primary-light px-3 text-xs font-semibold text-primary"
           >
             <LayoutDashboard size={17} aria-hidden="true" />
             {t("dashboard.dashboard")}
@@ -227,7 +228,7 @@ export function DashboardLayout({
                       "border-l-2 border-primary bg-primary-light font-semibold text-primary",
                   }}
                   onClick={closeMobileNavigation}
-                  className="flex min-h-9 w-full items-center gap-2.5 rounded-lg border-l-2 border-transparent px-3 text-left text-xs font-medium text-text-muted transition-colors hover:bg-background hover:text-text"
+                  className="flex min-h-9 w-full items-center gap-2.5 rounded-control border-l-2 border-transparent px-3 text-left text-xs font-medium text-text-muted transition-colors hover:bg-background hover:text-text"
                 >
                   <Icon size={17} aria-hidden="true" />
                   <span className="flex-1">{label}</span>
@@ -238,7 +239,7 @@ export function DashboardLayout({
         </nav>
 
         <div className="border-t border-border p-3">
-          <div className="flex min-w-0 items-center gap-2.5 rounded-xl border border-border bg-background p-2">
+          <div className="flex min-w-0 items-center gap-2.5 rounded-card border border-border bg-background p-2">
             <span className="relative flex size-8 shrink-0 items-center justify-center rounded-full bg-primary text-[11px] font-bold text-white ring-1 ring-border">
               {profileInitials || <RoleIcon size={15} aria-hidden="true" />}
               <span className="absolute bottom-0 right-0 size-2 rounded-full border-2 border-white bg-success" />
@@ -248,7 +249,7 @@ export function DashboardLayout({
                 <span className="block truncate text-[12px] font-bold leading-tight">
                   {profileName}
                 </span>
-                <span className="shrink-0 rounded bg-success-bg px-1 py-0.5 text-[8px] font-bold uppercase tracking-tight text-success-text">
+                <span className="shrink-0 rounded-control bg-success-bg px-1 py-0.5 text-[8px] font-bold uppercase tracking-tight text-success-text">
                   {t(config.roleNameKey)}
                 </span>
               </span>
@@ -256,15 +257,16 @@ export function DashboardLayout({
                 {user.email || t("dashboard.signedIn")}
               </span>
             </span>
-            <button
+            <DashboardButton
+              variant="ghost"
               type="button"
               onClick={() => void signOut()}
               aria-label={t("common.signOut")}
               title={t("common.signOut")}
-              className="flex size-7 shrink-0 items-center justify-center rounded-lg text-text-muted hover:bg-danger-bg hover:text-danger"
+              className="size-9 min-h-0 shrink-0 px-0 hover:bg-danger-bg hover:text-danger"
             >
               <LogOut size={15} aria-hidden="true" />
-            </button>
+            </DashboardButton>
           </div>
         </div>
       </aside>
@@ -272,16 +274,17 @@ export function DashboardLayout({
       <div className="flex min-h-screen flex-col lg:pl-64">
         <header className="sticky top-0 z-30 flex h-16 shrink-0 items-center justify-between gap-4 border-b border-border bg-surface/90 px-4 backdrop-blur-md md:px-6">
           <div className="flex min-w-0 flex-1 items-center gap-4 md:gap-6">
-            <button
+            <DashboardButton
+              variant="neutral"
               type="button"
               aria-label={t("dashboard.openNavigation")}
               aria-controls="dashboard-navigation"
               aria-expanded={mobileNavigationOpen}
-              className="flex size-10 shrink-0 items-center justify-center rounded-control border text-text-muted hover:bg-background lg:hidden"
+              className="size-10 min-h-0 shrink-0 px-0 lg:hidden"
               onClick={() => setMobileNavigationOpen(true)}
             >
               <Menu size={19} aria-hidden="true" />
-            </button>
+            </DashboardButton>
             <div className="hidden min-w-0 items-center gap-2 text-xs sm:flex">
               <span className="truncate text-text-muted">
                 {t("dashboard.registryPlatform")}
@@ -299,7 +302,7 @@ export function DashboardLayout({
                 type="search"
                 aria-label={t("dashboard.searchPlaceholder")}
                 placeholder={t("dashboard.searchPlaceholder")}
-                className="h-8 w-40 rounded-lg border border-border bg-background pl-8 pr-3 text-[11px] text-text placeholder:text-text-muted focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary sm:w-52 md:w-72"
+                className="h-8 w-40 rounded-control border border-border bg-background pl-8 pr-3 text-[11px] text-text placeholder:text-text-muted focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary sm:w-52 md:w-72"
               />
             </label>
           </div>
@@ -307,31 +310,34 @@ export function DashboardLayout({
           <div className="flex shrink-0 items-center gap-1 sm:gap-2 md:gap-3">
             <LanguageToggle />
             <span className="mx-0.5 hidden h-4 w-px bg-border sm:block" />
-            <button
+            <DashboardButton
+              variant="ghost"
               type="button"
               aria-label={t("dashboard.help")}
               title={t("dashboard.help")}
-              className="flex size-9 items-center justify-center rounded-lg border border-transparent text-text-muted transition-colors hover:border-border hover:bg-background hover:text-text"
+              className="size-9 min-h-0 px-0"
             >
               <CircleHelp size={17} aria-hidden="true" />
-            </button>
-            <button
+            </DashboardButton>
+            <DashboardButton
+              variant="ghost"
               type="button"
               aria-label={t("dashboard.notifications")}
               title={t("dashboard.notifications")}
-              className="relative flex size-9 items-center justify-center rounded-lg border border-transparent text-text-muted transition-colors hover:border-border hover:bg-background hover:text-text"
+              className="relative size-9 min-h-0 px-0"
             >
               <Bell size={17} aria-hidden="true" />
               <span className="absolute right-2 top-2 size-2 rounded-full border border-white bg-danger" />
-            </button>
+            </DashboardButton>
             <div className="relative" ref={profileRef}>
-              <button
+              <DashboardButton
+                variant="neutral"
                 type="button"
                 aria-label={t("dashboard.profileMenu")}
                 aria-expanded={profileMenuOpen}
                 aria-haspopup="menu"
                 onClick={() => setProfileMenuOpen((open) => !open)}
-                className="flex h-9 items-center gap-1.5 rounded-lg border border-transparent px-1.5 transition-colors hover:border-border hover:bg-background"
+                className="h-9 min-h-0 gap-1.5 border-transparent px-1.5"
               >
                 <span className="flex size-7 items-center justify-center rounded-full bg-primary text-[11px] font-bold text-white">
                   {profileInitials || <RoleIcon size={14} aria-hidden="true" />}
@@ -341,11 +347,11 @@ export function DashboardLayout({
                   className={`text-text-muted transition-transform ${profileMenuOpen ? "rotate-180" : ""}`}
                   aria-hidden="true"
                 />
-              </button>
+              </DashboardButton>
               {profileMenuOpen && (
                 <div
                   role="menu"
-                  className="absolute right-0 top-full z-50 mt-2 w-64 rounded-xl border border-border bg-surface py-1.5 shadow-floating"
+                  className="absolute right-0 top-full z-50 mt-2 w-64 rounded-card border border-border bg-surface py-1.5 shadow-floating"
                 >
                   <div className="border-b border-border bg-background/70 px-4 py-3">
                     <p className="truncate text-xs font-bold text-text">
@@ -366,7 +372,7 @@ export function DashboardLayout({
                         onChange={(event) =>
                           onPreviewRoleChange(event.target.value)
                         }
-                        className="mt-1 h-9 w-full rounded-lg border border-border bg-background px-2 text-xs text-text"
+                        className="mt-1 h-9 w-full rounded-control border border-border bg-background px-2 text-xs text-text"
                       >
                         {previewDashboards.map((dashboard) => (
                           <option

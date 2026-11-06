@@ -188,6 +188,12 @@ export const enCommon = {
       descriptionNp: "Description (Nepali)",
       adminName: "Admin name",
       emailAddress: "Email address",
+      contact: "Contact number",
+      password: "Temporary password",
+      province: "Province",
+      district: "District",
+      municipality: "Municipality",
+      ward: "Ward",
       assignedRegion: "Assigned region / municipality",
       rolePermissions: "Role permissions",
       inviteHelp:

@@ -17,6 +17,7 @@ import {
   X,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { DashboardButton, DashboardField } from "@shared/ui";
 import {
   useSuperAdminMockData,
   type MockAdmin,
@@ -30,9 +31,9 @@ type ModalKind = "product" | "category" | "unit" | "invite";
 type FormValues = Record<string, string>;
 
 const fieldClassName =
-  "h-12 w-full rounded-lg border border-border bg-surface px-4 text-text focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary";
+  "h-12 w-full rounded-control border border-border bg-surface px-4 text-text focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary";
 const textAreaClassName =
-  "w-full rounded-lg border border-border bg-surface p-3 text-text focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary";
+  "w-full rounded-control border border-border bg-surface p-3 text-text focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary";
 const tableRowClassName =
   "h-14 transition-colors hover:bg-background/80";
 const tableCellClassName = "px-4 py-2.5 md:px-5";
@@ -51,7 +52,17 @@ function getEmptyForm(kind: ModalKind): FormValues {
   if (kind === "unit") {
     return { nameEn: "", nameNp: "", shortEn: "", shortNp: "", type: "" };
   }
-  return { nameEn: "", email: "", regionEn: "", role: "District Coordinator" };
+  return {
+    nameEn: "",
+    nameNp: "",
+    contact: "",
+    email: "",
+    password: "",
+    province: "",
+    district: "",
+    municipality: "",
+    ward: "",
+  };
 }
 
 function TableFrame({
@@ -70,7 +81,7 @@ function TableFrame({
   minWidth: number;
 }) {
   return (
-    <div className="overflow-hidden rounded-xl border border-border bg-surface">
+    <div className="overflow-hidden rounded-card border border-border bg-surface">
       <div className="flex min-h-11 items-center justify-between border-b border-border px-4 md:px-5">
         <p className="text-xs font-medium text-text-muted">{recordLabel}</p>
       </div>
@@ -127,7 +138,7 @@ function RowActions({
         onClick={onEdit}
         title={editLabel}
         aria-label={editLabel}
-        className="flex size-9 items-center justify-center rounded-lg text-text-muted transition-colors hover:bg-background hover:text-primary"
+        className="flex size-9 items-center justify-center rounded-control text-text-muted transition-colors hover:bg-background hover:text-primary"
       >
         <Edit2 size={18} aria-hidden="true" />
       </button>
@@ -136,7 +147,7 @@ function RowActions({
         onClick={onDelete}
         title={deleteLabel}
         aria-label={deleteLabel}
-        className="flex size-9 items-center justify-center rounded-lg text-text-muted transition-colors hover:bg-danger-bg hover:text-danger"
+        className="flex size-9 items-center justify-center rounded-control text-text-muted transition-colors hover:bg-danger-bg hover:text-danger"
       >
         <Trash2 size={18} aria-hidden="true" />
       </button>
@@ -158,19 +169,14 @@ function Field({
   type?: string;
 }) {
   return (
-    <label className="block space-y-1.5">
-      <span className="text-sm font-medium text-text-muted">
-        {label}
-        {required ? " *" : ""}
-      </span>
-      <input
-        className={fieldClassName}
-        type={type}
-        value={value}
-        onChange={(event) => onChange(event.target.value)}
-        required={required}
-      />
-    </label>
+    <DashboardField
+      label={label}
+      type={type}
+      value={value}
+      onChange={(event) => onChange(event.target.value)}
+      required={required}
+      className={fieldClassName}
+    />
   );
 }
 
@@ -261,7 +267,7 @@ export function SuperAdminModulePage() {
   const filteredAdmins = useMemo(() => {
     const query = search.trim().toLocaleLowerCase();
     return admins.filter((admin) =>
-      `${admin.nameEn} ${admin.nameNp} ${admin.email} ${admin.regionEn} ${admin.regionNp}`
+      `${admin.nameEn} ${admin.nameNp} ${admin.contact ?? ""} ${admin.email} ${admin.province ?? ""} ${admin.district ?? ""} ${admin.municipality ?? ""} ${admin.ward ?? ""} ${admin.regionEn} ${admin.regionNp}`
         .toLocaleLowerCase()
         .includes(query),
     );
@@ -275,6 +281,11 @@ export function SuperAdminModulePage() {
 
   function updateForm(key: string, value: string) {
     setForm((current) => ({ ...current, [key]: value }));
+  }
+
+  function closeModal() {
+    setModal(null);
+    setForm({});
   }
 
   function openCreate(kind: ModalKind) {
@@ -366,10 +377,21 @@ export function SuperAdminModulePage() {
       const nextAdmin: MockAdmin = {
         id,
         nameEn: form.nameEn.trim(),
-        nameNp: form.nameEn.trim(),
+        nameNp: form.nameNp.trim(),
+        contact: form.contact.trim(),
         email: form.email.trim(),
-        regionEn: form.regionEn.trim(),
-        regionNp: form.regionEn.trim(),
+        province: form.province.trim(),
+        district: form.district.trim(),
+        municipality: form.municipality.trim(),
+        ward: form.ward.trim(),
+        regionEn: [form.province, form.district, form.municipality, form.ward]
+          .map((value) => value.trim())
+          .filter(Boolean)
+          .join(", "),
+        regionNp: [form.province, form.district, form.municipality, form.ward]
+          .map((value) => value.trim())
+          .filter(Boolean)
+          .join(", "),
         status: "Pending invite",
         dateEn,
         dateNp: dateEn,
@@ -377,7 +399,7 @@ export function SuperAdminModulePage() {
       setAdmins((current) => [nextAdmin, ...current]);
     }
 
-    setModal(null);
+    closeModal();
     setToast(t("dashboard.superAdminPages.saved"));
   }
 
@@ -506,7 +528,12 @@ export function SuperAdminModulePage() {
     }
     return filteredAdmins.map((item, index) => {
       const name = isNepali ? item.nameNp : item.nameEn;
-      const region = isNepali ? item.regionNp : item.regionEn;
+      const regionParts = [item.province, item.district, item.municipality, item.ward].filter(Boolean);
+      const region = regionParts.length
+        ? regionParts.join(", ")
+        : isNepali
+          ? item.regionNp
+          : item.regionEn;
       const date = isNepali ? item.dateNp : item.dateEn;
       const active = item.status === "Active";
       return (
@@ -518,7 +545,10 @@ export function SuperAdminModulePage() {
             </span>
             {name}
           </td>
-          <td className={`${tableCellClassName} whitespace-nowrap font-mono text-xs text-text-muted`}>{item.email}</td>
+          <td className={`${tableCellClassName} whitespace-nowrap text-xs text-text-muted`}>
+            <span className="block font-mono">{item.email}</span>
+            {item.contact && <span className="mt-1 block">{item.contact}</span>}
+          </td>
           <td className={`${tableCellClassName} whitespace-nowrap`}>{region}</td>
           <td className={`${tableCellClassName} whitespace-nowrap`}>
             <span
@@ -542,7 +572,7 @@ export function SuperAdminModulePage() {
                 onClick={() =>
                   setToast(`${t("dashboard.superAdminPages.inviteSent")}: ${item.email}`)
                 }
-                className="flex size-9 items-center justify-center rounded-lg text-text-muted hover:bg-background hover:text-primary"
+                className="flex size-9 items-center justify-center rounded-control text-text-muted hover:bg-background hover:text-primary"
               >
                 <Send size={17} />
               </button>
@@ -551,7 +581,7 @@ export function SuperAdminModulePage() {
                 title={t("dashboard.superAdminPages.revoke")}
                 aria-label={t("dashboard.superAdminPages.revoke")}
                 onClick={() => setDeleteTarget({ kind: "localAdmin", id: item.id })}
-                className="flex size-9 items-center justify-center rounded-lg text-text-muted hover:bg-danger-bg hover:text-danger"
+                className="flex size-9 items-center justify-center rounded-control text-text-muted hover:bg-danger-bg hover:text-danger"
               >
                 <Trash2 size={17} />
               </button>
@@ -595,7 +625,7 @@ export function SuperAdminModulePage() {
               t("dashboard.superAdminPages.emailContact"),
               t("dashboard.superAdminPages.region"),
               t("dashboard.superAdminPages.statusLabel"),
-              t("dashboard.superAdminPages.invitedDate"),
+          t("dashboard.superAdminPages.invitedDate"),
               t("dashboard.superAdminPages.action"),
             ];
   const rows =
@@ -647,17 +677,17 @@ export function SuperAdminModulePage() {
             onChange={(event) => setSearch(event.target.value)}
             placeholder={t("dashboard.superAdminPages.search")}
             aria-label={t("dashboard.superAdminPages.search")}
-            className="h-11 w-full rounded-lg border border-border bg-surface pl-10 pr-4 text-sm text-text placeholder:text-text-muted focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/15"
+            className="h-11 w-full rounded-control border border-border bg-surface pl-10 pr-4 text-sm text-text placeholder:text-text-muted focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/15"
           />
         </label>
-        <button
+        <DashboardButton
           type="button"
           onClick={() => openCreate(currentModule === "localAdmin" ? "invite" : currentModule === "products" ? "product" : currentModule === "categories" ? "category" : "unit")}
-          className="flex h-11 w-full shrink-0 items-center justify-center gap-2 rounded-lg bg-primary px-5 text-sm font-semibold text-white transition-colors hover:bg-primary-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 md:w-auto"
+          className="w-full px-5 text-sm font-semibold md:w-auto"
         >
           {currentModule === "localAdmin" ? <Send size={18} /> : <Plus size={18} />}
           {pageConfig.addLabel}
-        </button>
+        </DashboardButton>
       </div>
 
       <TableFrame
@@ -676,15 +706,17 @@ export function SuperAdminModulePage() {
         <div
           className="fixed inset-0 z-[60] flex items-center justify-center overflow-y-auto bg-black/40 p-4 sm:p-6"
           onMouseDown={(event) => {
-            if (event.target === event.currentTarget) setModal(null);
+            if (event.target === event.currentTarget) closeModal();
           }}
         >
           <section
             role="dialog"
             aria-modal="true"
             aria-labelledby="super-admin-modal-title"
-            className={`my-auto flex max-h-[90vh] w-full flex-col overflow-hidden rounded-xl border border-border bg-surface ${
-              modal === "product" ? "max-w-[760px]" : "max-w-[560px]"
+            className={`my-auto flex max-h-[90vh] w-full flex-col overflow-hidden rounded-card border border-border bg-surface ${
+              modal === "product" || modal === "invite"
+                ? "max-w-[760px]"
+                : "max-w-[560px]"
             }`}
           >
             <header className="flex h-16 shrink-0 items-center justify-between border-b border-border px-6">
@@ -693,9 +725,9 @@ export function SuperAdminModulePage() {
               </h2>
               <button
                 type="button"
-                onClick={() => setModal(null)}
+                onClick={closeModal}
                 aria-label={t("common.cancel")}
-                className="flex size-9 items-center justify-center rounded-lg text-text-muted hover:bg-background hover:text-text"
+                className="flex size-9 items-center justify-center rounded-control text-text-muted hover:bg-background hover:text-text"
               >
                 <X size={20} />
               </button>
@@ -762,7 +794,7 @@ export function SuperAdminModulePage() {
                                   : [...current, unit.shortEn],
                               )
                             }
-                            className={`flex h-10 items-center gap-2 rounded-lg border px-4 text-sm font-medium transition-colors ${
+                            className={`flex h-10 items-center gap-2 rounded-control border px-4 text-sm font-medium transition-colors ${
                               selected
                                 ? "border-primary bg-primary-light text-primary"
                                 : "border-border bg-surface text-text hover:border-primary"
@@ -874,65 +906,85 @@ export function SuperAdminModulePage() {
               )}
               {modal === "invite" && (
                 <>
+                  <div className="grid gap-4 md:grid-cols-2">
+                    <Field
+                      label={t("dashboard.superAdminPages.fullNameEn")}
+                      value={form.nameEn ?? ""}
+                      onChange={(value) => updateForm("nameEn", value)}
+                    />
+                    <Field
+                      label={t("dashboard.superAdminPages.fullNameNp")}
+                      value={form.nameNp ?? ""}
+                      onChange={(value) => updateForm("nameNp", value)}
+                    />
+                  </div>
+                  <div className="grid gap-4 md:grid-cols-2">
+                    <Field
+                      label={t("dashboard.superAdminPages.contact")}
+                      value={form.contact ?? ""}
+                      onChange={(value) => updateForm("contact", value)}
+                      type="tel"
+                    />
+                    <Field
+                      label={t("dashboard.superAdminPages.emailAddress")}
+                      value={form.email ?? ""}
+                      onChange={(value) => updateForm("email", value)}
+                      type="email"
+                    />
+                  </div>
                   <Field
-                    label={t("dashboard.superAdminPages.adminName")}
-                    value={form.nameEn ?? ""}
-                    onChange={(value) => updateForm("nameEn", value)}
+                    label={t("dashboard.superAdminPages.password")}
+                    value={form.password ?? ""}
+                    onChange={(value) => updateForm("password", value)}
+                    type="password"
                   />
-                  <Field
-                    label={t("dashboard.superAdminPages.emailAddress")}
-                    value={form.email ?? ""}
-                    onChange={(value) => updateForm("email", value)}
-                    type="email"
-                  />
-                  <Field
-                    label={t("dashboard.superAdminPages.assignedRegion")}
-                    value={form.regionEn ?? ""}
-                    onChange={(value) => updateForm("regionEn", value)}
-                  />
-                  <label className="block space-y-1.5">
-                    <span className="text-sm font-medium text-text-muted">
-                      {t("dashboard.superAdminPages.rolePermissions")} *
-                    </span>
-                    <select
-                      value={form.role ?? "District Coordinator"}
-                      onChange={(event) => updateForm("role", event.target.value)}
-                      className={fieldClassName}
-                    >
-                      {[
-                        "District Coordinator",
-                        "Municipal Inspector",
-                        "Collection Supervisor",
-                      ].map((role) => (
-                        <option key={role} value={role}>
-                          {t(`dashboard.superAdminPages.inviteRoles.${role}`)}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
+                  <div className="grid gap-4 md:grid-cols-2">
+                    <Field
+                      label={t("dashboard.superAdminPages.province")}
+                      value={form.province ?? ""}
+                      onChange={(value) => updateForm("province", value)}
+                    />
+                    <Field
+                      label={t("dashboard.superAdminPages.district")}
+                      value={form.district ?? ""}
+                      onChange={(value) => updateForm("district", value)}
+                    />
+                    <Field
+                      label={t("dashboard.superAdminPages.municipality")}
+                      value={form.municipality ?? ""}
+                      onChange={(value) => updateForm("municipality", value)}
+                    />
+                    <Field
+                      label={t("dashboard.superAdminPages.ward")}
+                      value={form.ward ?? ""}
+                      onChange={(value) => updateForm("ward", value)}
+                      type="number"
+                    />
+                  </div>
                   <p className="text-xs text-text-muted">
                     {t("dashboard.superAdminPages.inviteHelp")}
                   </p>
                 </>
               )}
               <footer className="flex flex-col-reverse gap-3 border-t border-border pt-4 sm:flex-row sm:items-center sm:justify-end">
-                <button
+                <DashboardButton
+                  variant="secondary"
                   type="button"
-                  onClick={() => setModal(null)}
-                  className="h-12 rounded-lg border border-primary px-6 font-medium text-primary transition-colors hover:bg-primary-light"
+                  onClick={closeModal}
+                  className="px-6"
                 >
                   {t("common.cancel")}
-                </button>
-                <button
+                </DashboardButton>
+                <DashboardButton
                   type="submit"
-                  className="h-12 rounded-lg bg-primary px-8 font-medium text-white transition-colors hover:bg-primary-dark"
+                  className="px-8"
                 >
                   {modal === "invite"
                     ? t("dashboard.superAdminPages.sendInvitation")
                     : editingId
                       ? t("dashboard.superAdminPages.update")
                       : t("common.save")}
-                </button>
+                </DashboardButton>
               </footer>
             </form>
           </section>
@@ -945,7 +997,7 @@ export function SuperAdminModulePage() {
             role="alertdialog"
             aria-modal="true"
             aria-labelledby="delete-title"
-            className="w-full max-w-[400px] space-y-4 rounded-xl border border-border bg-surface p-6"
+            className="w-full max-w-[400px] space-y-4 rounded-card border border-border bg-surface p-6"
           >
             <div>
               <h2 id="delete-title" className="text-lg font-semibold text-text">
@@ -956,20 +1008,22 @@ export function SuperAdminModulePage() {
               </p>
             </div>
             <footer className="flex justify-end gap-3 border-t border-border pt-4">
-              <button
+              <DashboardButton
+                variant="neutral"
                 type="button"
                 onClick={() => setDeleteTarget(null)}
-                className="h-10 rounded-lg border border-border px-4 text-sm text-text hover:bg-background"
+                className="min-h-10 px-4 text-sm"
               >
                 {t("common.cancel")}
-              </button>
-              <button
+              </DashboardButton>
+              <DashboardButton
+                variant="danger"
                 type="button"
                 onClick={confirmDelete}
-                className="h-10 rounded-lg bg-danger px-4 text-sm font-medium text-white hover:opacity-90"
+                className="min-h-10 px-4 text-sm"
               >
                 {t("dashboard.superAdminPages.delete")}
-              </button>
+              </DashboardButton>
             </footer>
           </section>
         </div>
@@ -978,7 +1032,7 @@ export function SuperAdminModulePage() {
       {toast && (
         <div
           role="status"
-          className="fixed bottom-5 right-5 z-[80] rounded-lg border border-border bg-surface px-4 py-3 text-sm text-text"
+          className="fixed bottom-5 right-5 z-[80] rounded-control border border-border bg-surface px-4 py-3 text-sm text-text"
         >
           {toast}
         </div>

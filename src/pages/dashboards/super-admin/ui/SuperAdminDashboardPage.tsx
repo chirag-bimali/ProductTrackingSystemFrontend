@@ -1,5 +1,6 @@
 import { Shapes, Package, Ruler } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { DashboardCard } from "@shared/ui";
 import { useSuperAdminMockData } from "../model/mock-data";
 
 export function SuperAdminDashboardPage() {
@@ -42,9 +43,9 @@ export function SuperAdminDashboardPage() {
 
       <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
         {statistics.map(({ label, value, icon: Icon }) => (
-          <article
+          <DashboardCard
             key={label}
-            className="flex items-center justify-between gap-4 rounded-xl border border-border bg-surface p-6"
+            className="flex items-center justify-between gap-4 p-6"
           >
             <div className="space-y-1">
               <p className="text-sm text-text-muted">{label}</p>
@@ -52,16 +53,16 @@ export function SuperAdminDashboardPage() {
                 {value}
               </p>
             </div>
-            <span className="flex size-[72px] shrink-0 items-center justify-center rounded-lg bg-primary-light text-primary">
+            <span className="flex size-[72px] shrink-0 items-center justify-center rounded-control bg-primary-light text-primary">
               <Icon size={36} strokeWidth={1.8} aria-hidden="true" />
             </span>
-          </article>
+          </DashboardCard>
         ))}
       </div>
 
-      <section
+      <DashboardCard
         aria-labelledby="products-used-heading"
-        className="space-y-6 rounded-xl border border-border bg-surface p-6"
+        className="space-y-6 p-6"
       >
         <h2
           id="products-used-heading"
@@ -92,10 +93,10 @@ export function SuperAdminDashboardPage() {
                 aria-valuemin={0}
                 aria-valuemax={maximumCount}
                 aria-valuenow={product.usedCount}
-                className="h-6 w-full overflow-hidden rounded-lg bg-primary-light"
+                className="h-6 w-full overflow-hidden rounded-control bg-primary-light"
               >
                 <div
-                  className="h-full rounded-lg bg-primary transition-[width]"
+                  className="h-full rounded-control bg-primary transition-[width]"
                   style={{
                     width: `${(product.usedCount / maximumCount) * 100}%`,
                   }}
@@ -104,7 +105,7 @@ export function SuperAdminDashboardPage() {
             </div>
           ))}
         </div>
-      </section>
+      </DashboardCard>
     </section>
   );
 }
