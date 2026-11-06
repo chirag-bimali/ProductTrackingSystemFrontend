@@ -1,10 +1,4 @@
-import {
-  ClipboardList,
-  QrCode,
-  Settings,
-  ShieldCheck,
-  Users,
-} from "lucide-react";
+import { Package, Ruler, Shapes, Users } from "lucide-react";
 import type { DashboardOverviewConfig } from "@widgets/dashboard-overview";
 
 export const superAdminDashboard: DashboardOverviewConfig = {
@@ -13,12 +7,11 @@ export const superAdminDashboard: DashboardOverviewConfig = {
   roleKey: "superAdmin",
   roleNameKey: "dashboard.roles.superAdmin",
   roleDescriptionKey: "dashboard.roleDescriptions.superAdmin",
-  roleIcon: ShieldCheck,
+  roleIcon: Users,
   modules: [
-    { id: "organizations", icon: Users },
-    { id: "roles", icon: ShieldCheck },
-    { id: "audits", icon: ClipboardList },
-    { id: "qrVault", icon: QrCode },
-    { id: "settings", icon: Settings },
+    { id: "products", icon: Package },
+    { id: "categories", icon: Shapes },
+    { id: "units", icon: Ruler },
+    { id: "localAdmin", icon: Users },
   ],
 };
