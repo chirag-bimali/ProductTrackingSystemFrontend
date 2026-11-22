@@ -704,7 +704,7 @@ export function SuperAdminModulePage() {
 
       {modal && (
         <div
-          className="fixed inset-0 z-[60] flex items-center justify-center overflow-y-auto bg-black/40 p-4 sm:p-6"
+          className="fixed inset-0 z-[60] flex items-center justify-center overflow-y-auto bg-black/40 p-4 sm:p-6 lg:left-64"
           onMouseDown={(event) => {
             if (event.target === event.currentTarget) closeModal();
           }}
@@ -713,7 +713,7 @@ export function SuperAdminModulePage() {
             role="dialog"
             aria-modal="true"
             aria-labelledby="super-admin-modal-title"
-            className={`my-auto flex max-h-[90vh] w-full flex-col overflow-hidden rounded-card border border-border bg-surface ${
+            className={`flex max-h-[90vh] w-full flex-col overflow-hidden rounded-card border border-border bg-surface ${
               modal === "product" || modal === "invite"
                 ? "max-w-[760px]"
                 : "max-w-[560px]"

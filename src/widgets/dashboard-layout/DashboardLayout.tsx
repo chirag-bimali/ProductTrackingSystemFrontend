@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { clearAuthSession } from "@shared/lib";
+import { useUiStore } from "@shared/store";
 import { DashboardButton, LanguageToggle } from "@shared/ui";
 import type { AuthenticatedUser } from "@features/auth/model/authenticated-user";
 import type { DashboardOverviewConfig } from "@widgets/dashboard-overview";
@@ -64,6 +65,7 @@ export function DashboardLayout({
   onPreviewRoleChange,
 }: DashboardLayoutProps) {
   const { t } = useTranslation();
+  const language = useUiStore((state) => state.language);
   const navigate = useNavigate();
   const pathname = useRouterState({
     select: (state) => state.location.pathname,
@@ -79,11 +81,15 @@ export function DashboardLayout({
   );
   const pageTitle = activeModule?.label ?? t("dashboard.dashboard");
   const profileRef = useRef<HTMLDivElement>(null);
+  const signOutDialogRef = useRef<HTMLDivElement>(null);
   const [mobileNavigationOpen, setMobileNavigationOpen] = useState(false);
   const [desktopNavigation, setDesktopNavigation] = useState(false);
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
+  const [signOutConfirmationOpen, setSignOutConfirmationOpen] = useState(false);
   const navigationHidden = !desktopNavigation && !mobileNavigationOpen;
-  const profileName = user.displayName || user.email || t("dashboard.signedIn");
+  const localizedName = language === "ne" ? user.nameNe : user.nameEn;
+  const profileName =
+    localizedName || user.displayName || user.email || t("dashboard.signedIn");
   const profileInitials = profileName
     .split(/[\s@.]+/)
     .filter(Boolean)
@@ -134,9 +140,26 @@ export function DashboardLayout({
     };
   }, [profileMenuOpen]);
 
+  useEffect(() => {
+    if (!signOutConfirmationOpen) return;
+
+    signOutDialogRef.current?.focus();
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setSignOutConfirmationOpen(false);
+    };
+
+    window.addEventListener("keydown", closeOnEscape);
+    return () => window.removeEventListener("keydown", closeOnEscape);
+  }, [signOutConfirmationOpen]);
+
   async function signOut() {
     clearAuthSession();
     await navigate({ to: "/login", replace: true });
+  }
+
+  function requestSignOut() {
+    setProfileMenuOpen(false);
+    setSignOutConfirmationOpen(true);
   }
 
   function closeMobileNavigation() {
@@ -260,12 +283,12 @@ export function DashboardLayout({
             <DashboardButton
               variant="ghost"
               type="button"
-              onClick={() => void signOut()}
+              onClick={requestSignOut}
               aria-label={t("common.signOut")}
               title={t("common.signOut")}
-              className="size-9 min-h-0 shrink-0 px-0 hover:bg-danger-bg hover:text-danger"
+              className="size-12 min-h-0 shrink-0 px-0 hover:bg-danger-bg hover:text-danger"
             >
-              <LogOut size={15} aria-hidden="true" />
+              <LogOut size={25} aria-hidden="true" />
             </DashboardButton>
           </div>
         </div>
@@ -292,7 +315,7 @@ export function DashboardLayout({
               <ChevronRight size={14} className="shrink-0 text-text-muted" aria-hidden="true" />
               <span className="truncate font-semibold text-text">{pageTitle}</span>
             </div>
-            <label className="relative ml-0 md:ml-2">
+            <label className="relative ml-0 hidden md:ml-2 sm:block">
               <Search
                 size={16}
                 className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-text-muted"
@@ -315,18 +338,18 @@ export function DashboardLayout({
               type="button"
               aria-label={t("dashboard.help")}
               title={t("dashboard.help")}
-              className="size-9 min-h-0 px-0"
+              className="size-12 min-h-0 px-0"
             >
-              <CircleHelp size={17} aria-hidden="true" />
+              <CircleHelp size={28} aria-hidden="true" />
             </DashboardButton>
             <DashboardButton
               variant="ghost"
               type="button"
               aria-label={t("dashboard.notifications")}
               title={t("dashboard.notifications")}
-              className="relative size-9 min-h-0 px-0"
+              className="relative size-12 min-h-0 px-0"
             >
-              <Bell size={17} aria-hidden="true" />
+              <Bell size={30} aria-hidden="true" />
               <span className="absolute right-2 top-2 size-2 rounded-full border border-white bg-danger" />
             </DashboardButton>
             <div className="relative" ref={profileRef}>
@@ -341,6 +364,9 @@ export function DashboardLayout({
               >
                 <span className="flex size-7 items-center justify-center rounded-full bg-primary text-[11px] font-bold text-white">
                   {profileInitials || <RoleIcon size={14} aria-hidden="true" />}
+                </span>
+                <span className="hidden max-w-32 truncate text-[11px] font-semibold lg:block">
+                  {profileName}
                 </span>
                 <ChevronDown
                   size={14}
@@ -388,10 +414,10 @@ export function DashboardLayout({
                   <button
                     type="button"
                     role="menuitem"
-                    onClick={() => void signOut()}
+                    onClick={requestSignOut}
                     className="flex w-full items-center gap-2.5 px-4 py-2 text-left text-xs font-medium text-danger transition-colors hover:bg-danger-bg"
                   >
-                    <LogOut size={16} aria-hidden="true" />
+                    <LogOut size={25} aria-hidden="true" />
                     {t("common.signOut")}
                   </button>
                 </div>
@@ -428,6 +454,57 @@ export function DashboardLayout({
           </nav>
         </footer>
       </div>
+      {signOutConfirmationOpen && (
+        <div className="fixed inset-0 z-[60] grid place-items-center bg-text/45 p-4 backdrop-blur-sm">
+          <div
+            ref={signOutDialogRef}
+            tabIndex={-1}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="sign-out-dialog-title"
+            aria-describedby="sign-out-dialog-description"
+            className="w-full max-w-md rounded-card border border-border bg-surface p-6 shadow-floating sm:p-8"
+          >
+            <div className="flex items-start gap-4">
+              <span className="flex size-12 shrink-0 items-center justify-center rounded-full bg-danger-bg text-danger">
+                <LogOut size={23} aria-hidden="true" />
+              </span>
+              <div className="min-w-0 pt-0.5">
+                <h2
+                  id="sign-out-dialog-title"
+                  className="text-heading font-semibold text-text"
+                >
+                  {t("common.confirmSignOutTitle")}
+                </h2>
+                <p
+                  id="sign-out-dialog-description"
+                  className="mt-2 text-small leading-relaxed text-text-muted"
+                >
+                  {t("common.confirmSignOutMessage")}
+                </p>
+              </div>
+            </div>
+            <div className="mt-8 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+              <DashboardButton
+                variant="neutral"
+                type="button"
+                onClick={() => setSignOutConfirmationOpen(false)}
+                className="w-full sm:w-auto sm:min-w-28"
+              >
+                {t("common.cancel")}
+              </DashboardButton>
+              <DashboardButton
+                variant="danger"
+                type="button"
+                onClick={() => void signOut()}
+                className="w-full sm:w-auto sm:min-w-28"
+              >
+                {t("common.confirmSignOut")}
+              </DashboardButton>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

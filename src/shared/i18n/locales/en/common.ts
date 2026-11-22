@@ -10,6 +10,9 @@ export const enCommon = {
     next: "Next",
     back: "Back",
     signOut: "Sign out",
+    confirmSignOutTitle: "Sign out?",
+    confirmSignOutMessage: "Are you sure you want to sign out of your account?",
+    confirmSignOut: "Sign out",
   },
   header: {
     tagline: "Agricultural Supply Chain Verification",

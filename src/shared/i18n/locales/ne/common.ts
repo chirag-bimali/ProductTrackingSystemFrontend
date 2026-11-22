@@ -12,6 +12,10 @@ export const neCommon: typeof enCommon = {
     next: "अर्को",
     back: "पछाडि",
     signOut: "लगआउट",
+    confirmSignOutTitle: "लगआउट गर्ने?",
+    confirmSignOutMessage:
+      "के तपाईं आफ्नो खाताबाट लगआउट गर्न निश्चित हुनुहुन्छ?",
+    confirmSignOut: "लगआउट गर्नुहोस्",
   },
   header: {
     tagline: "कृषि आपूर्ति शृङ्खला प्रमाणीकरण",
